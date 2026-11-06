@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="uz" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kun Tartibi & Intizom Dashboard — Qarshi</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Canvas Confetti for task completion celebration -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            cat: {
+              deen: '#10b981',      // Din & Ruhiyat (Emerald)
+              ml: '#8b5cf6',        // ML & Kod (Indigo/Purple)
+              lang: '#f59e0b',      // Tillar (Amber)
+              sport: '#ef4444',     // Sport & Energiya (Rose/Red)
+              routine: '#3b82f6',   // Uy & Ovqat (Blue)
+              rest: '#64748b',      // Dam olish & Uyqu (Slate)
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-indigo-500 selection:text-white antialiased overflow-x-hidden">
+
+  <!-- Ambient Glow Effects -->
+  <div class="fixed top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+  <div class="fixed bottom-0 right-1/4 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+  
+  <!-- Header / Navigation Bar -->
+  <header class="sticky top-0 z-40 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/80 transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-400 p-0.5 shadow-lg shadow-indigo-500/20 flex items-center justify-center">
+          <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+            <span class="text-xl">⚡</span>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+              Daily Focus <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono">Qarshi • Solo</span>
+            </h1>
+          </div>
+          <p class="text-xs text-slate-400 font-medium">ML • Sport • Din • Tillar — 05:30 dan 22:00 gacha</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions & Clock -->
+      <div class="flex items-center gap-3 sm:gap-6">
+        <!-- Live Clock -->
+        <div class="text-right hidden sm:block">
+          <div id="liveClock" class="font-mono text-xl font-bold tracking-wider text-slate-100">00:00:00</div>
+          <div id="liveDate" class="text-xs text-slate-400 uppercase tracking-widest font-medium">--</div>
+        </div>
+
+        <!-- Audio bell toggle -->
+        <button id="soundToggleBtn" title="Bildirishnoma ovozini yoqish/o'chirish" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 transition">
+          <svg id="soundIconOn" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          </svg>
+          <svg id="soundIconOff" class="w-5 h-5 hidden text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+          </svg>
+        </button>
+
+        <!-- Focus Timer Quick Trigger -->
+        <button id="quickFocusBtn" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/25 hover:brightness-110 active:scale-95 transition flex items-center gap-1.5">
+          <span>⏱️</span>
+          <span class="hidden md:inline">Fokus Taymer</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    
+    <!-- Hero / Active Now Banner -->
+    <section id="activeHero" class="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900/90 via-slate-900/40 to-slate-950 p-6 sm:p-8 backdrop-blur-xl shadow-2xl transition-all">
+      <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+        
+        <!-- Left: Status & Current Activity -->
+        <div class="space-y-3 max-w-2xl">
+          <div class="flex flex-wrap items-center gap-2.5">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span id="currentStatusBadge">Hozirgi mashg‘ulot</span>
+            </span>
+            <span id="currentDayBadge" class="px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
+              Bugun: Dushanba (Toq kun)
+            </span>
+            <span id="prayerReminderBadge" class="hidden px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-600/30">
+              🕌 Namoz vaqti
+            </span>
+          </div>
+
+          <h2 id="currentTaskTitle" class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+            Yuklanmoqda...
+          </h2>
+          <p id="currentTaskDesc" class="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
+            Kun tartibi bo‘yicha hozirgi mashg‘ulotingiz hisoblanmoqda.
+          </p>
+
+          <!-- Current Task Progress -->
+          <div class="pt-2 space-y-2">
+            <div class="flex justify-between items-center text-xs font-mono text-slate-400">
+              <span id="timeElapsedText">00:00 o'tdi</span>
+              <span id="timeRemainingText" class="text-indigo-400 font-semibold">Qoldi: --:--</span>
+            </div>
+            <div class="w-full bg-slate-800/80 rounded-full h-2.5 overflow-hidden border border-slate-700/50">
+              <div id="taskProgressBar" class="h-full bg-gradient-to-r from-indigo-500 via-indigo-400 to-emerald-400 transition-all duration-1000" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Next Up & Action Buttons -->
+        <div class="w-full lg:w-auto flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[280px]">
+          <div class="p-4 rounded-2xl bg-slate-800/50 border border-slate-700/50 backdrop-blur-md">
+            <div class="text-[11px] uppercase font-bold tracking-wider text-slate-400 mb-1 flex items-center justify-between">
+              <span>Keyingi mashg‘ulot</span>
+              <span id="nextTaskTime" class="font-mono text-indigo-300">--:--</span>
+            </div>
+            <div id="nextTaskTitle" class="text-sm font-semibold text-white truncate">
+              --
+            </div>
+          </div>
+
+          <!-- Mark completed button for current task -->
+          <button id="completeCurrentTaskBtn" class="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-900/30 active:scale-95 transition flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Bajarildi deb belgilash</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs (Rejalar almashinuvi) -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      
+      <!-- Day Type Switcher -->
+      <div class="inline-flex p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur self-start">
+        <button id="tabOdd" class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 bg-indigo-600 text-white shadow-md">
+          <span>🚀</span>
+          <span>Toq kunlar (Grant)</span>
+          <span class="text-[10px] py-0.5 px-1.5 rounded bg-white/20 uppercase font-mono">Dush · Chor · Juma</span>
+        </button>
+        <button id="tabEven" class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white transition-all flex items-center gap-2">
+          <span>🎯</span>
+          <span>Juft kunlar (Mustaqil)</span>
+          <span class="text-[10px] py-0.5 px-1.5 rounded bg-slate-800 text-slate-300 uppercase font-mono">Sesh · Pay · Shan</span>
+        </button>
+        <button id="tabSun" class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white transition-all flex items-center gap-2">
+          <span>🌿</span>
+          <span>Yakshanba (Tahlil & Dam)</span>
+        </button>
+      </div>
+
+      <!-- Filter by Category & Progress Counter -->
+      <div class="flex items-center gap-3">
+        <span id="dailyProgressText" class="text-xs font-mono font-medium text-slate-400">
+          0/0 bajarildi (0%)
+        </span>
+        <button id="resetDayBtn" title="Bugungi vazifalarni qayta tiklash" class="text-xs text-slate-500 hover:text-slate-300 underline underline-offset-4 transition">
+          Qayta boshlash
+        </button>
+      </div>
+    </div>
+
+    <!-- Category Legend Bar -->
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      <span class="text-slate-400 mr-2 text-xs font-semibold">Kategoriyalar:</span>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Din & Ruhiyat
+      </span>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+        <span class="w-2 h-2 rounded-full bg-indigo-500"></span> ML & Kodlash
+      </span>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+        <span class="w-2 h-2 rounded-full bg-amber-500"></span> Tillar (Ingliz & Rus)
+      </span>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20">
+        <span class="w-2 h-2 rounded-full bg-rose-500"></span> Sport & Tiklanish
+      </span>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+        <span class="w-2 h-2 rounded-full bg-blue-500"></span> Uy & Ovqat
+      </span>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-500/10 text-slate-400 border border-slate-500/20">
+        <span class="w-2 h-2 rounded-full bg-slate-400"></span> Dam olish & Uyqu
+      </span>
+    </div>
+
+    <!-- Main Schedule Timeline View -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      
+      <!-- Left 2 Cols: Schedule List -->
+      <div class="lg:col-span-2 space-y-4">
+        
+        <!-- Schedule Heading with Context Alert -->
+        <div id="scheduleBannerContext" class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/40 text-xs sm:text-sm text-indigo-200 flex items-start gap-3">
+          <span class="text-xl">💡</span>
+          <div>
+            <strong id="bannerTitle" class="font-bold text-white block mb-0.5">Toq kunlar: ML Grant va Zalda to‘g‘ri taqsimot</strong>
+            <span id="bannerDesc" class="text-indigo-200/90 leading-relaxed">
+              Zaldan keyin to‘g‘ridan-to‘g‘ri ML grant darsiga (19:00–21:00) borishing kerak. Shom namozini zaldan chiqishda yoki dars tanaffusida ado etishga e’tibor bering!
+            </span>
+          </div>
+        </div>
+
+        <!-- Timeline Items Container -->
+        <div id="scheduleContainer" class="space-y-3">
+          <!-- Dynamically populated via app.js -->
+        </div>
+
+      </div>
+
+      <!-- Right 1 Col: Sidebars (Weekly Tracker, Focus Timer, Qarshi Info, Habits) -->
+      <div class="space-y-6">
+        
+        <!-- Sunday Weekly Review Card (Always visible or triggerable) -->
+        <div class="rounded-3xl border border-slate-800 bg-slate-900/70 backdrop-blur-xl p-6 shadow-xl relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-base text-white flex items-center gap-2">
+              <span>📊</span>
+              <span>Haftalik Tahlil (Review)</span>
+            </h3>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-medium">Yakshanbalik tekshiruv</span>
+          </div>
+          
+          <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+            Mustaqil hayotdagi eng kuchli qurol — o‘z natijalaringni muntazam hisoblab borish.
+          </p>
+
+          <form id="weeklyReviewForm" class="space-y-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
+                <span>🤖 ML o‘zlashtirilgan mavzular:</span>
+                <span class="text-[10px] text-slate-500">Mavzular soni</span>
+              </label>
+              <input type="text" id="reviewML" placeholder="Masalan: ResNet, Linear Regression amaliyoti" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none text-slate-200">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
+                <span>🐙 GitHub commits / loyihalar:</span>
+                <span class="text-[10px] text-slate-500">Repo & kod</span>
+              </label>
+              <input type="text" id="reviewGithub" placeholder="Masalan: 3 ta commit, MNIST classifier repozitoriyasi" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none text-slate-200">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">🇬🇧 English:</label>
+                <input type="text" id="reviewEnglish" placeholder="2 Listening, 1 Read" class="w-full px-2.5 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none text-slate-200">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">🇷🇺 Rus tili (Ibrat):</label>
+                <input type="text" id="reviewRussian" placeholder="30 ta yangi so'z" class="w-full px-2.5 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none text-slate-200">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">🏋️ Sport zali:</label>
+                <input type="text" id="reviewSport" placeholder="3 kun kuch + 1 kardio" class="w-full px-2.5 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none text-slate-200">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">📖 Qur'on muraja'asi:</label>
+                <input type="text" id="reviewQuran" placeholder="Har kuni 1 juz / takror" class="w-full px-2.5 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none text-slate-200">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
+                <span>💰 Moliya (Kvartira & oziq-ovqat):</span>
+                <span class="text-[10px] text-slate-500">Haftalik xarajat</span>
+              </label>
+              <input type="text" id="reviewFinance" placeholder="Masalan: 350,000 so'm (bozorlik + yo'l)" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none text-slate-200">
+            </div>
+
+            <button type="submit" class="w-full mt-2 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-md shadow-indigo-600/20 flex items-center justify-center gap-1.5">
+              <span>💾</span>
+              <span>Tahlilni saqlash</span>
+            </button>
+          </form>
+
+          <!-- Saved Reviews History Preview -->
+          <div id="savedReviewHistory" class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-400 space-y-2">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Solo Living & Mindset Booster Card -->
+        <div class="rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 to-indigo-950/30 p-6 shadow-xl space-y-4">
+          <div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+            <span>🔥</span>
+            <span>Qarshida Mustaqil Hayot Eslatmasi</span>
+          </div>
+          <blockquote class="italic text-slate-300 text-xs sm:text-sm border-l-2 border-indigo-500 pl-3 leading-relaxed">
+            "Sen hozir oilangdan uzoqda yashab, o‘z hayoting poydevorini quryapsan. Bu davrda o‘zingni boshqarishni o‘rganishing — butun umrlik yutuq bo‘ladi."
+          </blockquote>
+          
+          <div class="space-y-2 text-xs text-slate-300">
+            <div class="flex items-start gap-2">
+              <span class="text-emerald-400">✓</span>
+              <span><strong>Sport qoidasi:</strong> Har kuni og‘ir mashq emas! 3 kun kuch mashqlari, 1-2 kun kardio/MMA, qolgani tiklanish.</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-indigo-400">✓</span>
+              <span><strong>Namoz tartibi:</strong> Toq kunlari Shom namozini zaldan chiqishda yoki dars oldidan o'qib olish.</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-amber-400">✓</span>
+              <span><strong>Uyqu gigiyenasi:</strong> 22:00 da uyquga yotish ertangi 05:30 dagi Bomdod va ML sifatini ta'minlaydi.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Links / Useful Tools -->
+        <div class="rounded-3xl border border-slate-800 bg-slate-900/50 p-5 space-y-3">
+          <h4 class="text-xs uppercase font-bold tracking-wider text-slate-400">Tezkor resurslar</h4>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <a href="https://github.com" target="_blank" class="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 flex items-center gap-2 text-slate-200 transition">
+              <span>🐙</span> <span>GitHub</span>
+            </a>
+            <a href="https://kaggle.com" target="_blank" class="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 flex items-center gap-2 text-slate-200 transition">
+              <span>📊</span> <span>Kaggle / ML</span>
+            </a>
+            <a href="https://quran.com" target="_blank" class="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 flex items-center gap-2 text-slate-200 transition">
+              <span>📖</span> <span>Quran.com</span>
+            </a>
+            <a href="https://t.me" target="_blank" class="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 flex items-center gap-2 text-slate-200 transition">
+              <span>🎓</span> <span>Ibrat Academy</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Focus / Pomodoro Modal -->
+  <div id="focusModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-6 sm:p-8 shadow-2xl space-y-6 text-center animate-scaleIn">
+      <div class="flex justify-between items-center">
+        <span class="text-xs font-mono uppercase px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold">Chuqur Fokus Rejimi</span>
+        <button id="closeFocusModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+      </div>
+
+      <div class="space-y-1">
+        <h3 id="focusModalTaskName" class="text-xl font-bold text-white">ML Amaliyot & Kod</h3>
+        <p class="text-xs text-slate-400">Chalg‘imasdan diqqatni jamlang. Barcha xabarlarni o‘chiring.</p>
+      </div>
+
+      <!-- Circular / Big Timer Display -->
+      <div class="py-6 flex flex-col items-center justify-center">
+        <div id="focusTimerDisplay" class="text-6xl font-extrabold font-mono text-white tracking-wider text-indigo-400 drop-shadow-[0_0_25px_rgba(99,102,241,0.3)]">
+          25:00
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button class="preset-timer px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-mono" data-mins="25">25 daqiqa</button>
+          <button class="preset-timer px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-mono" data-mins="45">45 daqiqa</button>
+          <button class="preset-timer px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-mono" data-mins="60">60 daqiqa</button>
+          <button class="preset-timer px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-mono" data-mins="90">90 daqiqa</button>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex items-center justify-center gap-3">
+        <button id="startFocusBtn" class="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-lg shadow-indigo-600/30 transition">
+          Boshlash
+        </button>
+        <button id="resetFocusBtn" class="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition">
+          To‘xtatish
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-900 mt-16 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p>© 2026 Daily Routine Tracker • Qarshi shahri. Har bir daqiqa buyuk maqsad sari intilish.</p>
+      <div class="flex items-center gap-4">
+        <span>05:30 – 22:00</span>
+        <span>•</span>
+        <span>Intizom erkinlikka eltadi</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
